@@ -2,17 +2,31 @@ const searchButton = document.querySelector(".search-button");
 
 // KETIKA TOMBOL SEARCH DI KLIK
 searchButton.addEventListener("click", async function () {
-  const inputKeyWord = document.querySelector(".input-keyword");
-  const movies = await getMovies(inputKeyWord.value);
-  updateUI(movies);
+  try {
+    const inputKeyWord = document.querySelector(".input-keyword");
+    const movies = await getMovies(inputKeyWord.value);
+    updateUI(movies);
+  } catch (error) {
+    alert(error);
+  }
 });
 
 function getMovies(keyWord) {
   return fetch(
     `http://www.omdbapi.com/?i=tt3896198&apikey=af905206&s=${keyWord}`
   )
-    .then((response) => response.json())
-    .then((response) => response.Search);
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      return response.json();
+    })
+    .then((response) => {
+      if (response.Response === "False") {
+        throw new Error(response.Error);
+      }
+      return response.Search;
+    });
 }
 
 function updateUI(movies) {
